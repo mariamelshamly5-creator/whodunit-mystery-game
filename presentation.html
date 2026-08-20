@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WHODUNIT? — Case Presentation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-black:#111013;
+    --charcoal:#1b1912;
+    --cork:#4a3323;
+    --cork-dark:#3a2718;
+    --manila:#e9dfc0;
+    --manila-dark:#d8caa2;
+    --paper:#f4ecd8;
+    --blood:#a91f22;
+    --blood-bright:#c9282b;
+    --tape-yellow:#e7b93c;
+    --string-red:#b3282b;
+    --text-dark:#221d15;
+    --text-light:#f1ead6;
+    --text-faint:#a99a7a;
+    --font-display:'Bebas Neue', sans-serif;
+    --font-type:'Special Elite', cursive;
+    --font-code:'Courier Prime', monospace;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html,body{
+    height:100%;
+    background:var(--ink-black);
+    overflow:hidden;
+  }
+
+  body{
+    font-family:var(--font-type);
+    color:var(--text-light);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+  }
+
+  /* ===================== DECK SHELL ===================== */
+
+  .deck{
+    position:relative;
+    width:100vw;
+    height:100vh;
+  }
+
+  .stage{
+    position:relative;
+    width:100%;
+    height:100%;
+  }
+
+  .slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:6vh 7vw 11vh;
+    opacity:0;
+    transform:translateY(24px) scale(.985);
+    pointer-events:none;
+    transition:opacity .55s ease, transform .55s ease;
+  }
+
+  .slide.active{
+    opacity:1;
+    transform:translateY(0) scale(1);
+    pointer-events:auto;
+  }
+
+  /* background moods */
+  .bg-cork{
+    background:
+      radial-gradient(circle at 15% 20%, rgba(0,0,0,.35), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(0,0,0,.4), transparent 45%),
+      repeating-radial-gradient(circle at 20% 30%, rgba(0,0,0,.12) 0 2px, transparent 2px 14px),
+      repeating-radial-gradient(circle at 70% 65%, rgba(0,0,0,.1) 0 2px, transparent 2px 16px),
+      linear-gradient(160deg, var(--cork) 0%, var(--cork-dark) 100%);
+  }
+
+  .bg-doc{
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,235,190,.05), transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.6), transparent 55%),
+      var(--ink-black);
+  }
+
+  .bg-paper{
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(0,0,0,.25), transparent 55%),
+      var(--paper);
+    color:var(--text-dark);
+  }
+
+  /* ===================== TOP BRAND BAR ===================== */
+
+  .brandbar{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:9vh;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 4vw;
+    z-index:5;
+  }
+
+  .seal{
+    width:56px; height:56px;
+    border-radius:50%;
+    border:2px solid var(--text-faint);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    font-family:var(--font-display);
+    letter-spacing:.5px;
+    background:#f4ecd8;
+    color:var(--text-faint);
+    flex-shrink:0;
+    overflow:hidden;
+    box-shadow:0 4px 10px rgba(0,0,0,.35);
+  }
+  .seal img{
+    width:100%; height:100%;
+    object-fit:contain;
+    padding:6px;
+  }
+  .seal .seal-main{ font-size:15px; line-height:1; }
+  .seal .seal-sub{ font-size:6px; font-family:var(--font-type); letter-spacing:1px; margin-top:2px; }
+
+  .bg-paper .seal, .bg-cork .seal{ border-color:rgba(34,29,21,.45); color:rgba(34,29,21,.7); }
+
+  .brand-title{
+    font-family:var(--font-type);
+    font-size:11px;
+    letter-spacing:3px;
+    color:var(--text-faint);
+    text-align:center;
+  }
+  .bg-paper .brand-title{ color:rgba(34,29,21,.55); }
+
+  /* ===================== TYPOGRAPHY HELPERS ===================== */
+
+  .eyebrow{
+    font-family:var(--font-type);
+    font-size:12px;
+    letter-spacing:4px;
+    text-transform:uppercase;
+    color:var(--blood-bright);
+    margin-bottom:14px;
+  }
+
+  .headline{
+    font-family:var(--font-display);
+    font-size:clamp(42px, 6.4vw, 92px);
+    letter-spacing:1px;
+    line-height:.95;
+    color:var(--text-light);
+  }
+  .bg-paper .headline{ color:var(--text-dark); }
+
+  .stamp-red{
+    color:var(--blood-bright);
+    -webkit-text-stroke:1px rgba(0,0,0,.15);
+  }
+
+  .lede{
+    font-family:var(--font-type);
+    font-size:clamp(13px,1.4vw,16px);
+    line-height:1.75;
+    color:var(--text-faint);
+    max-width:640px;
+  }
+  .bg-paper .lede{ color:#4a4028; }
+
+  /* ===================== SLIDE CONTENT WRAPPER ===================== */
+
+  .content{
+    max-width:1180px;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:18px;
+    z-index:3;
+  }
+
+  .content.left{ align-items:flex-start; text-align:left; }
+
+  .divider{
+    width:120px; height:2px;
+    background:repeating-linear-gradient(90deg, var(--blood) 0 8px, transparent 8px 14px);
+    margin:6px 0;
+  }
+
+  /* ===================== COVER SLIDE ===================== */
+
+  .cover-tag{
+    font-family:var(--font-type);
+    font-size:13px;
+    letter-spacing:3px;
+    color:var(--tape-yellow);
+    border:1px solid rgba(231,185,60,.5);
+    padding:6px 18px;
+    transform:rotate(-1.5deg);
+    background:rgba(0,0,0,.2);
+  }
+
+  .cover-title{
+    font-family:var(--font-display);
+    font-size:clamp(64px, 13vw, 168px);
+    letter-spacing:2px;
+    line-height:.85;
+    color:var(--paper);
+    text-shadow:0 0 40px rgba(0,0,0,.5);
+    position:relative;
+  }
+
+  .cover-stamp{
+    position:absolute;
+    top:-10px; right:-30px;
+    font-family:var(--font-display);
+    font-size:22px;
+    letter-spacing:3px;
+    color:var(--blood-bright);
+    border:3px solid var(--blood-bright);
+    padding:4px 12px;
+    transform:rotate(11deg);
+    opacity:.9;
+    mix-blend-mode:screen;
+  }
+
+  .cover-sub{
+    font-family:var(--font-type);
+    font-size:clamp(12px,1.6vw,17px);
+    letter-spacing:5px;
+    color:var(--text-faint);
+    text-transform:uppercase;
+  }
+
+  .cover-meta{
+    display:flex; gap:36px; flex-wrap:wrap;
+    justify-content:center;
+    margin-top:20px;
+  }
+  .cover-meta div{ text-align:center; }
+  .cover-meta .k{ font-family:var(--font-type); font-size:10px; letter-spacing:2px; color:var(--text-faint); text-transform:uppercase; }
+  .cover-meta .v{ font-family:var(--font-display); font-size:20px; letter-spacing:1px; color:var(--text-light); margin-top:2px; }
+
+  .string-deco{
+    position:absolute;
+    pointer-events:none;
+    opacity:.55;
+  }
+
+  /* ===================== INDEX / TOC ===================== */
+
+  .toc-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(260px,1fr));
+    gap:10px 40px;
+    width:100%;
+    max-width:820px;
+    margin-top:10px;
+  }
+  .toc-item{
+    display:flex; align-items:baseline; gap:14px;
+    font-family:var(--font-type);
+    font-size:14px;
+    color:var(--text-light);
+    padding:10px 4px;
+    border-bottom:1px dashed rgba(241,234,214,.18);
+  }
+  .toc-item .num{ font-family:var(--font-display); font-size:20px; color:var(--blood-bright); width:34px; flex-shrink:0; }
+
+  /* ===================== ID CARD (supervisor / team) ===================== */
+
+  .id-card{
+    background:var(--manila);
+    color:var(--text-dark);
+    width:100%;
+    max-width:420px;
+    padding:26px 26px 22px;
+    border:1px solid rgba(0,0,0,.15);
+    box-shadow:0 18px 40px rgba(0,0,0,.45), inset 0 0 0 6px rgba(255,255,255,.15);
+    position:relative;
+    transform:rotate(-.6deg);
+  }
+  .id-card::before{
+    content:"";
+    position:absolute; top:-10px; left:24px;
+    width:46px; height:20px;
+    background:rgba(231,185,60,.75);
+    transform:rotate(-4deg);
+    box-shadow:0 2px 4px rgba(0,0,0,.3);
+  }
+  .id-card .id-photo{
+    width:76px; height:92px;
+    background:
+      repeating-linear-gradient(135deg, rgba(0,0,0,.12) 0 4px, transparent 4px 8px),
+      #b9ab84;
+    border:2px solid var(--text-dark);
+    margin-bottom:14px;
+    display:flex; align-items:flex-end; justify-content:center;
+    overflow:hidden;
+  }
+  .id-card .id-photo svg{ width:76%; height:88%; }
+  .id-card .id-label{ font-family:var(--font-type); font-size:9px; letter-spacing:2px; color:#6b5c3c; text-transform:uppercase; }
+  .id-card .id-name{ font-family:var(--font-display); font-size:30px; letter-spacing:.5px; margin:2px 0 8px; }
+  .id-card .id-role{ font-family:var(--font-type); font-size:12px; color:var(--blood); margin-bottom:10px; }
+  .id-card .id-line{ font-family:var(--font-type); font-size:11px; color:#5a4d33; line-height:1.6; }
+
+  .team-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:22px;
+    width:100%;
+    max-width:1180px;
+  }
+  .team-grid .id-card{ max-width:none; padding:20px 18px 18px; }
+  .team-grid .id-card:nth-child(2){ transform:rotate(.8deg); }
+  .team-grid .id-card:nth-child(3){ transform:rotate(-.9deg); }
+  .team-grid .id-card:nth-child(4){ transform:rotate(.5deg); }
+  .team-grid .id-photo{ width:100%; height:110px; }
+  .team-grid .id-name{ font-size:24px; }
+
+  /* ===================== EVIDENCE / TOOLS TAGS ===================== */
+
+  .tag-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+    width:100%;
+    max-width:1080px;
+  }
+  .evidence-tag{
+    background:var(--manila);
+    color:var(--text-dark);
+    padding:16px 16px 14px;
+    text-align:left;
+    position:relative;
+    border-left:5px solid var(--blood);
+    box-shadow:0 10px 24px rgba(0,0,0,.35);
+  }
+  .evidence-tag .tag-id{ font-family:var(--font-display); font-size:12px; letter-spacing:2px; color:var(--blood); }
+  .evidence-tag .tag-name{ font-family:var(--font-display); font-size:22px; margin:4px 0 4px; }
+  .evidence-tag .tag-desc{ font-family:var(--font-type); font-size:11px; color:#5a4d33; line-height:1.5; }
+  .evidence-tag::after{
+    content:"";
+    position:absolute; top:8px; right:10px;
+    width:8px; height:8px;
+    border-radius:50%;
+    background:rgba(0,0,0,.25);
+  }
+
+  /* ===================== ARCHITECTURE / FILE FLOW ===================== */
+
+  .flow-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    width:100%;
+    flex-wrap:wrap;
+  }
+  .flow-node{
+    background:var(--manila);
+    color:var(--text-dark);
+    padding:18px 20px;
+    min-width:190px;
+    text-align:left;
+    box-shadow:0 12px 26px rgba(0,0,0,.4);
+    position:relative;
+  }
+  .flow-node .fn-tag{ font-family:var(--font-type); font-size:9px; letter-spacing:2px; color:var(--blood); text-transform:uppercase; }
+  .flow-node .fn-name{ font-family:var(--font-display); font-size:19px; margin:4px 0 4px; }
+  .flow-node .fn-file{ font-family:var(--font-code); font-size:10px; color:#6b5c3c; }
+  .flow-arrow{
+    font-family:var(--font-display);
+    font-size:26px;
+    color:var(--string-red);
+    flex-shrink:0;
+  }
+
+  /* ===================== MODULE / FILE DETAIL SLIDES ===================== */
+
+  .file-header{
+    display:flex;
+    align-items:baseline;
+    gap:18px;
+    width:100%;
+    max-width:1080px;
+  }
+  .file-header .file-no{
+    font-family:var(--font-display);
+    font-size:90px;
+    color:rgba(169,31,34,.5);
+    line-height:1;
+  }
+  .mine-ribbon{
+    display:inline-block;
+    font-family:var(--font-type);
+    font-size:10px;
+    letter-spacing:2px;
+    color:var(--ink-black);
+    background:var(--tape-yellow);
+    padding:4px 10px;
+    transform:rotate(-2deg);
+    margin-left:10px;
+  }
+
+  .file-body{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:36px;
+    width:100%;
+    max-width:1080px;
+    text-align:left;
+    margin-top:6px;
+  }
+
+  .file-col h4{
+    font-family:var(--font-type);
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--tape-yellow);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .file-col ul{ list-style:none; }
+  .file-col li{
+    font-family:var(--font-type);
+    font-size:13px;
+    color:var(--text-light);
+    line-height:1.7;
+    padding-left:18px;
+    position:relative;
+    margin-bottom:6px;
+  }
+  .file-col li::before{
+    content:"—";
+    position:absolute; left:0; color:var(--blood-bright);
+  }
+
+  .code-block{
+    background:#0b0b0d;
+    border:1px solid rgba(241,234,214,.12);
+    padding:16px 18px;
+    font-family:var(--font-code);
+    font-size:11.5px;
+    line-height:1.7;
+    color:#c9c2a8;
+    text-align:left;
+    overflow:hidden;
+    white-space:pre;
+  }
+  .code-block .kw{ color:#d98a52; }
+  .code-block .cm{ color:#6b7a5a; }
+  .code-block .st{ color:#d0b25a; }
+
+  /* ===================== RUN / TERMINAL SLIDE ===================== */
+
+  .terminal{
+    width:100%;
+    max-width:760px;
+    background:#0c0c0e;
+    border:1px solid rgba(241,234,214,.15);
+    box-shadow:0 30px 70px rgba(0,0,0,.6);
+  }
+  .terminal-bar{
+    display:flex; gap:6px;
+    padding:10px 14px;
+    background:#1a1a1d;
+    border-bottom:1px solid rgba(241,234,214,.08);
+  }
+  .terminal-bar span{ width:10px; height:10px; border-radius:50%; background:#484848; }
+  .terminal-bar span:nth-child(1){ background:#b3282b; }
+  .terminal-bar span:nth-child(2){ background:#e7b93c; }
+  .terminal-bar span:nth-child(3){ background:#4a7a4a; }
+  .terminal-body{
+    padding:20px 22px 24px;
+    font-family:var(--font-code);
+    font-size:12.5px;
+    line-height:1.9;
+    color:#c9c2a8;
+    text-align:left;
+  }
+  .terminal-body .prompt{ color:var(--tape-yellow); }
+  .terminal-body .out{ color:#8f8a76; }
+
+  .steps-row{
+    display:flex;
+    gap:14px;
+    width:100%;
+    max-width:1080px;
+    margin-top:26px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .step-chip{
+    background:var(--manila);
+    color:var(--text-dark);
+    padding:10px 16px;
+    font-family:var(--font-type);
+    font-size:11.5px;
+    display:flex; align-items:center; gap:8px;
+    box-shadow:0 8px 18px rgba(0,0,0,.35);
+  }
+  .step-chip b{ font-family:var(--font-display); color:var(--blood); font-size:16px; }
+
+  /* ===================== TIMELINE SLIDE ===================== */
+
+  .timeline{
+    width:100%;
+    max-width:880px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .tl-row{
+    display:grid;
+    grid-template-columns:90px 1fr 70px;
+    align-items:center;
+    gap:20px;
+    padding:14px 0;
+    border-bottom:1px dashed rgba(241,234,214,.15);
+    text-align:left;
+  }
+  .tl-clock{
+    font-family:var(--font-display);
+    font-size:26px;
+    color:var(--tape-yellow);
+  }
+  .tl-task{ font-family:var(--font-type); font-size:14px; color:var(--text-light); }
+  .tl-task small{ display:block; font-size:10px; color:var(--text-faint); margin-top:3px; letter-spacing:1px; }
+  .tl-dur{ font-family:var(--font-display); font-size:18px; color:var(--blood-bright); text-align:right; }
+
+  /* ===================== CLOSING SLIDE ===================== */
+
+  .closed-stamp{
+    font-family:var(--font-display);
+    font-size:clamp(50px,9vw,120px);
+    letter-spacing:4px;
+    color:var(--blood-bright);
+    border:6px solid var(--blood-bright);
+    padding:10px 34px;
+    transform:rotate(-7deg);
+    text-shadow:0 0 20px rgba(201,40,43,.4);
+  }
+
+  /* ===================== NAVIGATION ===================== */
+
+  .nav-ui{
+    position:absolute;
+    bottom:0; left:0; right:0;
+    height:9vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    z-index:10;
+  }
+
+  .dots{
+    display:flex;
+    gap:6px;
+  }
+  .dot{
+    width:26px; height:4px;
+    background:rgba(241,234,214,.18);
+    border:none;
+    cursor:pointer;
+    transition:background .25s ease, width .25s ease;
+  }
+  .dot.active{ background:var(--blood-bright); width:38px; }
+
+  .nav-btn{
+    width:38px; height:38px;
+    border-radius:50%;
+    border:1px solid rgba(241,234,214,.25);
+    background:rgba(255,255,255,.03);
+    color:var(--text-light);
+    font-family:var(--font-display);
+    font-size:16px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .2s ease, transform .2s ease;
+  }
+  .nav-btn:hover{ background:rgba(201,40,43,.25); transform:scale(1.08); }
+
+  .slide-count{
+    font-family:var(--font-code);
+    font-size:11px;
+    color:var(--text-faint);
+    width:54px;
+    text-align:center;
+  }
+
+  @media (max-width:820px){
+    .toc-grid{ grid-template-columns:1fr; }
+    .team-grid{ grid-template-columns:repeat(2,1fr); }
+    .tag-grid{ grid-template-columns:1fr 1fr; }
+    .file-body{ grid-template-columns:1fr; }
+    .flow-row{ flex-direction:column; }
+    .flow-arrow{ transform:rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+  <div class="stage" id="stage">
+
+    <!-- SLIDE 1 : COVER -->
+    <section class="slide active bg-cork" data-index="1">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">NATIONAL TELECOMMUNICATION INSTITUTE&nbsp;&nbsp;·&nbsp;&nbsp;MINISTRY OF COMMUNICATIONS &amp; IT</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+
+      <svg class="string-deco" width="900" height="500" style="top:8%; left:-40px;" viewbox="0 0 900 500">
+        <path d="M20,40 C 200,140 260,10 460,120 S 760,60 880,180" stroke="#b3282b" stroke-width="1.4" fill="none" opacity=".5"/>
+        <path d="M60,420 C 220,340 300,460 520,380 S 760,420 860,320" stroke="#b3282b" stroke-width="1.4" fill="none" opacity=".4"/>
+      </svg>
+
+      <div class="content">
+        <div class="cover-tag">CASE FILE NO. 2026‑08 · TEAM PROJECT</div>
+        <div style="position:relative; margin-top:22px;">
+          <div class="cover-title">WHO<span class="stamp-red">DUNIT</span>?</div>
+          <div class="cover-stamp">OPEN&nbsp;CASE</div>
+        </div>
+        <div class="cover-sub">An Interactive Mystery &amp; Deduction Game — Built in Python</div>
+        <div class="divider"></div>
+        <div class="cover-meta">
+          <div><div class="k">Track</div><div class="v">Python Programming</div></div>
+          <div><div class="k">Institute</div><div class="v">NTI</div></div>
+          <div><div class="k">Team Size</div><div class="v">4 Detectives</div></div>
+        </div>
+        <div class="lede" style="margin-top:22px; font-size:12px; letter-spacing:1px;">
+          Presented by: Mariam Ahmed Mohamed Elshamly · Menna Mohamed Elmasry · Nada Tamer Ahmed · Jana Ahmed Khalaf
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 : THE BRIEF / TOC -->
+    <section class="slide bg-doc" data-index="2">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">CASE FILE — INTRODUCTION</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content left" style="align-items:center; text-align:center;">
+        <div class="eyebrow">01 / The Brief</div>
+        <div class="headline">What's In This Case</div>
+        <p class="lede" style="text-align:center; margin-top:6px;">
+          A social‑deduction party game for 4+ players, written entirely in Python.
+          One player is secretly assigned as the culprit, evidence unfolds round by round,
+          and the group must vote correctly before the trail goes cold.
+        </p>
+        <div class="toc-grid">
+          <div class="toc-item"><span class="num">03</span> Case Supervisor</div>
+          <div class="toc-item"><span class="num">04</span> The Investigation Team</div>
+          <div class="toc-item"><span class="num">05</span> Evidence &amp; Tools</div>
+          <div class="toc-item"><span class="num">06</span> Case File Structure</div>
+          <div class="toc-item"><span class="num">07</span> File 01 — Player Manager</div>
+          <div class="toc-item"><span class="num">08</span> File 02 — Case &amp; Clues Bank</div>
+          <div class="toc-item"><span class="num">09</span> File 03 — Voting &amp; Elimination</div>
+          <div class="toc-item"><span class="num">10</span> File 04 — Score &amp; Final Verdict</div>
+          <div class="toc-item"><span class="num">11</span> Run The Investigation</div>
+          <div class="toc-item"><span class="num">12</span> Designing The GUI</div>
+          <div class="toc-item"><span class="num">13</span> Why This Case Matters</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 : INSTRUCTOR -->
+    <section class="slide bg-cork" data-index="3">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">CASE SUPERVISOR</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content">
+        <div class="eyebrow">02 / Under Supervision Of</div>
+        <div class="headline" style="font-size:clamp(32px,4vw,52px); margin-bottom:10px;">Case Supervisor</div>
+        <div class="id-card" style="margin-top:10px;">
+          <div class="id-label">NTI · Instructor File</div>
+          <div class="id-photo"><svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12,120 C12,78 28,62 50,62 C72,62 88,78 88,120 Z" fill="#221d15" opacity=".62"/>
+              <ellipse cx="50" cy="38" rx="24" ry="28" fill="#221d15" opacity=".62"/>
+              <path d="M16,32 Q50,2 84,32 L84,40 Q68,26 50,26 Q32,26 16,40 Z" fill="#221d15" opacity=".8"/>
+            </svg></div>
+          <div class="id-name">Eng. Doaa Mohammed</div>
+          <div class="id-role">Course Instructor — Python Programming Track</div>
+          <div class="id-line">National Telecommunication Institute (NTI)<br>Ministry of Communications &amp; Information Technology</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 : TEAM -->
+    <section class="slide bg-doc" data-index="4">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">THE INVESTIGATION TEAM</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content">
+        <div class="eyebrow">03 / Four Detectives, One Case</div>
+        <div class="headline" style="font-size:clamp(32px,4vw,52px); margin-bottom:8px;">The Investigation Team</div>
+        <div class="team-grid" style="margin-top:14px;">
+          <div class="id-card">
+            <div class="id-label">Detective 01</div>
+            <div class="id-photo"><svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12,120 C12,78 28,62 50,62 C72,62 88,78 88,120 Z" fill="#221d15" opacity=".62"/>
+              <ellipse cx="50" cy="38" rx="24" ry="28" fill="#221d15" opacity=".62"/>
+              <path d="M16,32 Q50,2 84,32 L84,40 Q68,26 50,26 Q32,26 16,40 Z" fill="#221d15" opacity=".8"/>
+            </svg></div>
+            <div class="id-name" style="font-size:19px;">Mariam Ahmed Mohamed Elshamly</div>
+            <div class="id-role">Player Manager &amp; Secret Roles</div>
+            <div class="id-line">Faculty of Computers and Information<br>player_manager.py</div>
+          </div>
+          <div class="id-card">
+            <div class="id-label">Detective 02</div>
+            <div class="id-photo"><svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12,120 C12,78 28,62 50,62 C72,62 88,78 88,120 Z" fill="#221d15" opacity=".62"/>
+              <ellipse cx="50" cy="38" rx="24" ry="28" fill="#221d15" opacity=".62"/>
+              <path d="M16,32 Q50,2 84,32 L84,40 Q68,26 50,26 Q32,26 16,40 Z" fill="#221d15" opacity=".8"/>
+            </svg></div>
+            <div class="id-name" style="font-size:19px;">Menna Mohamed Elmasry</div>
+            <div class="id-role">Case &amp; Clues Bank</div>
+            <div class="id-line">Faculty of Computers and Information<br>case_clues.py</div>
+          </div>
+          <div class="id-card">
+            <div class="id-label">Detective 03</div>
+            <div class="id-photo"><svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12,120 C12,78 28,62 50,62 C72,62 88,78 88,120 Z" fill="#221d15" opacity=".62"/>
+              <ellipse cx="50" cy="38" rx="24" ry="28" fill="#221d15" opacity=".62"/>
+              <path d="M16,32 Q50,2 84,32 L84,40 Q68,26 50,26 Q32,26 16,40 Z" fill="#221d15" opacity=".8"/>
+            </svg></div>
+            <div class="id-name" style="font-size:19px;">Nada Tamer Ahmed</div>
+            <div class="id-role">Voting &amp; Elimination Rounds</div>
+            <div class="id-line">Faculty of Computer and Information<br>voting_rounds.py</div>
+          </div>
+          <div class="id-card">
+            <div class="id-label">Detective 04</div>
+            <div class="id-photo"><svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12,120 C12,78 28,62 50,62 C72,62 88,78 88,120 Z" fill="#221d15" opacity=".62"/>
+              <ellipse cx="50" cy="38" rx="24" ry="28" fill="#221d15" opacity=".62"/>
+              <path d="M16,32 Q50,2 84,32 L84,40 Q68,26 50,26 Q32,26 16,40 Z" fill="#221d15" opacity=".8"/>
+            </svg></div>
+            <div class="id-name" style="font-size:19px;">Jana Ahmed Khalaf</div>
+            <div class="id-role">Score &amp; Final Verdict</div>
+            <div class="id-line">Faculty of Business Information System<br>score_judge.py</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 : TOOLS -->
+    <section class="slide bg-cork" data-index="5">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">EVIDENCE &amp; TOOLS</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content">
+        <div class="eyebrow">04 / Confiscated From The Scene</div>
+        <div class="headline" style="font-size:clamp(32px,4vw,52px); margin-bottom:8px;">Evidence &amp; Tools</div>
+        <div class="tag-grid" style="margin-top:16px;">
+          <div class="evidence-tag"><div class="tag-id">E‑01</div><div class="tag-name">Python 3</div><div class="tag-desc">Core language for all game logic and OOP structure.</div></div>
+          <div class="evidence-tag"><div class="tag-id">E‑02</div><div class="tag-name">VS Code</div><div class="tag-desc">Main code editor used to write, run and debug every module.</div></div>
+          <div class="evidence-tag"><div class="tag-id">E‑03</div><div class="tag-name">random</div><div class="tag-desc">Culprit selection, case draws, clue shuffling.</div></div>
+          <div class="evidence-tag"><div class="tag-id">E‑04</div><div class="tag-name">os / platform</div><div class="tag-desc">Cross‑platform "pass the phone" screen clearing.</div></div>
+          <div class="evidence-tag"><div class="tag-id">E‑05</div><div class="tag-name">time</div><div class="tag-desc">Pacing — dramatic pauses between reveals.</div></div>
+          <div class="evidence-tag"><div class="tag-id">E‑06</div><div class="tag-name">Git &amp; GitHub</div><div class="tag-desc">Version control across four collaborating detectives.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 : ARCHITECTURE -->
+    <section class="slide bg-doc" data-index="6">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">CASE FILE STRUCTURE</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content">
+        <div class="eyebrow">05 / How The Files Connect</div>
+        <div class="headline" style="font-size:clamp(32px,4vw,52px); margin-bottom:20px;">Case File Structure</div>
+        <div class="flow-row">
+          <div class="flow-node"><div class="fn-tag">Detective 01</div><div class="fn-name">Player Manager</div><div class="fn-file">player_manager.py</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node"><div class="fn-tag">Detective 02</div><div class="fn-name">Case &amp; Clues</div><div class="fn-file">case_clues.py</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node"><div class="fn-tag">Detective 03</div><div class="fn-name">Voting Rounds</div><div class="fn-file">voting_rounds.py</div></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node"><div class="fn-tag">Detective 04</div><div class="fn-name">Score &amp; Judge</div><div class="fn-file">score_judge.py</div></div>
+        </div>
+        <p class="lede" style="margin-top:26px; text-align:center;">
+          Roles are assigned first, the case and its clues are drawn next, suspects are
+          voted out round by round, and the final module tallies points and declares a winner.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 : FILE 01 -->
+    <section class="slide bg-doc" data-index="7">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">player_manager.py</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content left">
+        <div class="file-header">
+          <div class="file-no">01</div>
+          <div><div class="eyebrow" style="margin-bottom:2px;">Detective 01</div><div class="headline" style="font-size:clamp(28px,3.4vw,44px);">Player Manager</div></div>
+        </div>
+        <div class="file-body">
+          <div class="file-col">
+            <h4>Concepts</h4>
+            <ul>
+              <li>OOP — the Player class</li>
+              <li>Dictionaries for role data</li>
+              <li>random.choice for the culprit</li>
+            </ul>
+            <h4 style="margin-top:16px;">Features</h4>
+            <ul>
+              <li>Dynamic player count entry</li>
+              <li>Random culprit + job + alibi assignment</li>
+              <li>"Pass the phone" secret reveal screen</li>
+            </ul>
+          </div>
+          <div class="code-block"><span class="kw">class</span> Player:
+    <span class="kw">def</span> __init__(self, name, job, connection):
+        self.name = name
+        self.job = job
+        self.connection = connection
+        self.is_culprit = <span class="kw">False</span>
+
+<span class="cm"># one player is chosen at random</span>
+culprit = random.choice(players)
+culprit.is_culprit = <span class="kw">True</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8 : FILE 02 -->
+    <section class="slide bg-doc" data-index="8">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">case_clues.py</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content left">
+        <div class="file-header">
+          <div class="file-no">02</div>
+          <div><div class="eyebrow" style="margin-bottom:2px;">Detective 02</div><div class="headline" style="font-size:clamp(28px,3.4vw,44px);">Case &amp; Clues Bank</div></div>
+        </div>
+        <div class="file-body">
+          <div class="file-col">
+            <h4>Concepts</h4>
+            <ul>
+              <li>Nested dictionaries &amp; lists</li>
+              <li>random module</li>
+            </ul>
+            <h4 style="margin-top:16px;">Features</h4>
+            <ul>
+              <li>5 pre‑written crime scenarios</li>
+              <li>Main clue system, one per round</li>
+              <li>On‑demand extra clue when the group is stuck</li>
+            </ul>
+          </div>
+          <div class="code-block"><span class="kw">class</span> CaseManager:
+    <span class="kw">def</span> get_main_clue(self):
+        clue = random.choice(
+            self.available_main_clues
+        )
+        self.available_main_clues.remove(clue)
+        <span class="kw">return</span> clue</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 : FILE 03 -->
+    <section class="slide bg-doc" data-index="9">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">voting_rounds.py</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content left">
+        <div class="file-header">
+          <div class="file-no">03</div>
+          <div><div class="eyebrow" style="margin-bottom:2px;">Detective 03</div><div class="headline" style="font-size:clamp(28px,3.4vw,44px);">Voting &amp; Elimination</div></div>
+        </div>
+        <div class="file-body">
+          <div class="file-col">
+            <h4>Concepts</h4>
+            <ul>
+              <li>While loops &amp; conditionals</li>
+              <li>Vote‑tally dictionaries</li>
+            </ul>
+            <h4 style="margin-top:16px;">Features</h4>
+            <ul>
+              <li>Secret or open voting per round</li>
+              <li>Highest‑vote elimination, with tie re‑votes</li>
+              <li>New clue revealed after each wrong guess</li>
+            </ul>
+          </div>
+          <div class="code-block"><span class="kw">while</span> len(players) > 2:
+    votes = voting_round(players)
+    out = find_eliminated_player(votes)
+    eliminate_player(players, out)
+    <span class="kw">if</span> out.is_culprit:
+        <span class="kw">return</span> {<span class="st">"culprit_found"</span>: <span class="kw">True</span>}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10 : FILE 04 (MINE) -->
+    <section class="slide bg-doc" data-index="10">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">score_judge.py</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content left">
+        <div class="file-header">
+          <div class="file-no">04</div>
+          <div><div class="eyebrow" style="margin-bottom:2px;">Detective 04</div><div class="headline" style="font-size:clamp(28px,3.4vw,44px);">Score &amp; Final Verdict</div></div>
+        </div>
+        <div class="file-body">
+          <div class="file-col">
+            <h4>Concepts</h4>
+            <ul>
+              <li>OOP — the ScoreJudge class</li>
+              <li>Game‑state management</li>
+              <li>Score calculations</li>
+            </ul>
+            <h4 style="margin-top:16px;">Features</h4>
+            <ul>
+              <li>Checks whether the true culprit was caught</li>
+              <li>+100 pts per correct voter · +300 pts if the culprit escapes</li>
+              <li>Ranked leaderboard with medals for the top 3</li>
+              <li>Replay with the same detectives, new case</li>
+            </ul>
+          </div>
+          <div class="code-block"><span class="kw">class</span> ScoreJudge:
+    <span class="kw">def</span> judge_round(self, result):
+        <span class="kw">if</span> result[<span class="st">"culprit_found"</span>]:
+            <span class="cm"># +100 to every correct voter</span>
+            ...
+        <span class="kw">else</span>:
+            <span class="cm"># +300 — the culprit fooled them</span>
+            self.add_points(culprit.name, 300)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11 : RUN -->
+    <section class="slide bg-cork" data-index="11">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">RUN THE INVESTIGATION</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content">
+        <div class="eyebrow">06 / Live Demo</div>
+        <div class="headline" style="font-size:clamp(32px,4vw,52px); margin-bottom:16px;">Run The Investigation</div>
+        <div class="terminal">
+          <div class="terminal-bar"><span></span><span></span><span></span></div>
+          <div class="terminal-body"><span class="prompt">$</span> python whodunit.py
+<span class="out">=== 🕵️ Welcome to the Mystery Investigation 🕵️ ===</span>
+Enter number of players (min 4): <span class="prompt">5</span>
+Enter player 1 name: <span class="prompt">Karim</span>
+<span class="out">✅ Players registered. Case selected. Roles assigned.</span>
+<span class="out">🔒 Pass the phone to reveal your secret role...</span></div>
+        </div>
+        <div class="steps-row">
+          <div class="step-chip"><b>1</b> Set player count</div>
+          <div class="step-chip"><b>2</b> Pass the phone for roles</div>
+          <div class="step-chip"><b>3</b> Read the case &amp; clues</div>
+          <div class="step-chip"><b>4</b> Vote each round</div>
+          <div class="step-chip"><b>5</b> See the verdict &amp; leaderboard</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12 : THE INTERFACE / GUI -->
+    <section class="slide bg-doc" data-index="12">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">INSIDE THE INTERROGATION ROOM</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content left">
+        <div class="file-header">
+          <div><div class="eyebrow" style="margin-bottom:2px;">07 / The Interface</div><div class="headline" style="font-size:clamp(28px,3.4vw,44px);">Designing The GUI</div></div>
+        </div>
+        <div class="file-body">
+          <div class="file-col">
+            <h4>Design Goals</h4>
+            <ul>
+              <li>Keep every player looking at one shared screen, in‑character</li>
+              <li>Make the terminal feel like a real case file, not a plain console</li>
+              <li>Hide secret information from everyone except the current player</li>
+            </ul>
+            <h4 style="margin-top:16px;">How It Works</h4>
+            <ul>
+              <li>Color‑coded prompts and ASCII dividers frame each round</li>
+              <li><span style="font-family:var(--font-code);">os</span> / <span style="font-family:var(--font-code);">platform</span> clear the screen for "pass the phone" privacy</li>
+              <li><span style="font-family:var(--font-code);">time</span> paces reveals so clues land with dramatic timing</li>
+              <li>Clean menus guide input at every step — no crashes on bad entries</li>
+            </ul>
+          </div>
+          <div class="terminal" style="max-width:460px;">
+            <div class="terminal-bar"><span></span><span></span><span></span></div>
+            <div class="terminal-body"><span class="out">┌──────────────────────────────┐
+│   🕵️  CASE FILE — ROUND 02     │
+└──────────────────────────────┘</span>
+<span class="out">New clue unlocked:</span>
+<span class="prompt">"The lights went out at 9:15 PM."</span>
+<span class="out">Cast your vote for the suspect →</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13 : WHY THIS CASE MATTERS -->
+    <section class="slide bg-cork" data-index="13">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">CLOSING ARGUMENT</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content">
+        <div class="eyebrow">08 / Why This Case Matters</div>
+        <div class="headline" style="font-size:clamp(32px,4vw,52px); margin-bottom:8px;">The Idea Behind The Case</div>
+        <p class="lede" style="margin-top:10px; text-align:center; max-width:760px;">
+          WHODUNIT? started as a simple question: could a classic party game be rebuilt entirely
+          from scratch in Python, with four people each owning a piece of it? Every module —
+          players, clues, votes, scoring — had to talk to the others cleanly, which pushed us to
+          actually practice OOP, state management and teamwork instead of just reading about them.
+        </p>
+        <p class="lede" style="margin-top:14px; text-align:center; max-width:760px;">
+          The result is more than an assignment: it's a working, replayable game that people can
+          genuinely sit down and enjoy — proof that what we learned on this track translates into
+          something real, built together, one file at a time.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 14 : CLOSING -->
+    <section class="slide bg-cork" data-index="14">
+      <div class="brandbar">
+        <div class="seal"><img src="https://www.nti.sci.eg/images/logo.png" alt="NTI Logo"></div>
+        <div class="brand-title">CASE CLOSED</div>
+        <div class="seal"><img src="https://www.mhgoz.com/wp-content/uploads/2023/04/%D9%88%D8%B2%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%83%D9%86%D9%88%D9%84%D9%88%D8%AC%D9%8A%D8%A7-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.png" alt="Ministry of Communications and Information Technology Logo"></div>
+      </div>
+      <div class="content">
+        <div class="closed-stamp">CASE CLOSED</div>
+        <p class="lede" style="margin-top:26px; text-align:center;">Thank you for investigating with us.</p>
+        <div class="divider"></div>
+        <div class="cover-meta">
+          <div><div class="k">Questions</div><div class="v">Now Open</div></div>
+          <div><div class="k">Repository</div><div class="v">[GitHub Link]</div></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="nav-ui">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous slide">‹</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" id="nextBtn" aria-label="Next slide">›</button>
+    <div class="slide-count" id="count">01 / 14</div>
+  </div>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  const dotsWrap = document.getElementById('dots');
+  const countEl = document.getElementById('count');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Go to slide ' + (i+1));
+    d.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function goTo(i){
+    if(i < 0 || i >= total) return;
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    countEl.textContent = String(current+1).padStart(2,'0') + ' / ' + total;
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', () => goTo(current-1));
+  document.getElementById('nextBtn').addEventListener('click', () => goTo(current+1));
+
+  window.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight' || e.key === ' ') goTo(current+1);
+    if(e.key === 'ArrowLeft') goTo(current-1);
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if(dx > 60) goTo(current-1);
+    if(dx < -60) goTo(current+1);
+  });
+</script>
+</body>
+</html>
